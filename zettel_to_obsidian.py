@@ -9,19 +9,28 @@
 
 
 import sys
+import os
 
 
 def main():
 
-    argument = sys.argv[1]
+    # Creating a new folder called "obsidian"
+    relative_directory = os.path.relpath('.','/')
+    new_directory_name = "obsidian"
+
+    path = os.path.join(relative_directory, new_directory_name)
+    os.mkdir(path)
 
 
-    zettelFile = open(argument, mode='r')
+    command = sys.argv[1]
+
+
+    zettelFile = open(command, mode='r')
     text = zettelFile.readlines()
 
 
     print("Creating File...")
-    newFile = open("%s.md"%(argument.rstrip(".wiki")), mode="w")
+    newFile = open("%s.md"%(command.rstrip(".wiki")), mode="w")
 
     for line in text:
         line = convert_headers(line)
@@ -30,6 +39,11 @@ def main():
     newFile.close()
     zettelFile.close()
 
+
+def create_json():
+
+    status = False
+    return status
 
 
 
