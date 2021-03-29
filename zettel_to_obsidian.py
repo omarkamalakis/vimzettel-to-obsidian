@@ -10,80 +10,52 @@
 
 import sys
 import os
-
+import json
+import argparse
+import lib
 
 def main():
 
     # Creating a new folder called "obsidian"
-    relative_directory = os.path.relpath('.','/')
-    new_directory_name = "obsidian"
 
-    path = os.path.join(relative_directory, new_directory_name)
-    os.mkdir(path)
+    # command = sys.argv[1]
+    # target = sys.argv[1]
+    # option = sys.argv[3]
 
+    # new_directory_name = "obsidian"
+    # os.mkdir(new_directory_name)
 
-    command = sys.argv[1]
-
-
-    zettelFile = open(command, mode='r')
-    text = zettelFile.readlines()
+    tmp = traverse_files()
+    print(tmp)
 
 
-    print("Creating File...")
-    newFile = open("%s.md"%(command.rstrip(".wiki")), mode="w")
-
-    for line in text:
-        line = convert_headers(line)
-        newFile.write(line)
-
-    newFile.close()
-    zettelFile.close()
-
-
-def create_json():
-
-    status = False
-    return status
-
-
-
-def convert_headers(line):
-
+def traverse_files() -> dict:
     """
-    convert_headers(string)
-    Takes single line of text
-    Replaces VimWiki headers with Markdown headers
-    returns converted header as string
+    Reads all .wiki files and extracts
+    titles, ID numbers, and dates. Returns
+    a dictionary to be used as reference
+    for links
+
+    dictionary structure:
+    {ID: {"Title", "Date"},..}
     """
 
-    header_strength = 0
-    old_header = "="
-    new_header = "#"
+    pages = {}
 
-    for character in line:
-        if character == old_header:
-            header_strength += 1
-        else:
-            break
+    for page in os.scandir():
 
-    new = line.replace(old_header, '')
-    newline = new_header * header_strength + new
+        if (page.path.endswith(".wiki")):
 
-    return newline
+            id_number = page.path.lstrip('./').rstrip('.wiki')
+            zettelFile = open(page.path, mode='r')
+            text = zettelFile.readlines()
+            title, date = lib.find_title_date(text)
 
-def convert_title(text):
-    # converting title to text breaks links...
-    # Not sure how to convert all links into their perspective titles
-    # Maybe use some kind of dictionary and convert all files at once?
-    title_signifier = "%%title "
-    date_signifier = "%%date "
+            pages[id_number] = [title, date]
 
-    title = text[0].replace(title_signifier, '')
-    date = text[1].replace(date_signifier, '')
+    return pages
 
-    return title, date
 
-# def convert_tag(text):
 
 main()
 
